@@ -1,0 +1,116 @@
+stages:
+  - dependencies
+  - layer
+  - build
+  - deploy
+
+variables:
+  LAYER_ENV: layer
+  STAGING_ENV: dev
+  PROD_ENV: prod
+  # RESOURCE_BUCKET_NAME_DEV: glosuite-resources-dev
+
+.dependencies: &dependencies
+  stage: dependencies
+  image: node
+  before_script:
+    - export AWS_ACCESS_KEY=${AWS_ACCESS_KEY_ID}
+    - export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    - export AWS_DEFAULT_REGION=us-east-1
+    - apt-get update -y
+  script:
+    - npm install -f
+    - mkdir nodejs && mv node_modules nodejs && cp package.json nodejs
+    - rm -rf nodejs.zip
+    - apt-get install zip -y
+    - zip -r nodejs.zip nodejs/
+    - rm -rf nodejs
+    - aws s3 cp nodejs.zip s3://${RESOURCE_BUCKET_NAME}/nodejs.zip
+
+
+.layer: &layer
+  stage: layer
+  image: node
+  before_script:
+    - export AWS_ACCESS_KEY=${AWS_ACCESS_KEY_ID}
+    - export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    - export AWS_DEFAULT_REGION=us-east-1
+  script: 
+    - aws lambda publish-layer-version --layer-name ${LAYER_NAME} --compatible-runtimes nodejs --description "Lambda node modules" --content S3Bucket=${RESOURCE_BUCKET_NAME},S3Key=nodejs.zip
+
+build:
+  stage: build
+  image: node
+  only:
+    - staging
+    - master
+  before_script:
+    - npm install -f
+    - npm i -f -g node-prune
+    - node-prune
+  script:
+    - npm run build
+    - du -sh dist/
+  artifacts:
+    paths:
+      - ./dist
+
+dependencies:
+  <<: *dependencies
+  only:
+    - layer
+  variables:
+    RESOURCE_BUCKET_NAME: $RESOURCE_BUCKET_NAME_DEV
+
+layer:
+  <<: *layer
+  only:
+    - layer
+  variables:
+    LAYER_NAME: node_modules
+    RESOURCE_BUCKET_NAME: $RESOURCE_BUCKET_NAME_DEV
+
+# build:
+#   stage: build
+#   image: node
+#   only:
+#     - layer
+#   script:
+#     - npm run build
+#   artifacts:
+#     paths:
+#       - ./dist
+
+.deploy_template: &deploy
+  stage: deploy
+  image: node
+  before_script:
+    - export AWS_ACCESS_KEY=${AWS_ACCESS_KEY_ID}
+    - export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    - npm i -D serverless-jetpack -f
+    - npm install -g serverless -f
+  script:
+    - sls deploy --stage ${ENV_VALUE} --region ${AWS_DEFAULT_REGION}
+
+
+deploy layer:
+  <<: *deploy
+  only:
+    - layer
+  variables:
+    ENV_VALUE: $LAYER_ENV
+
+deploy staging:
+  <<: *deploy
+  only:
+    - staging
+  variables:
+    ENV_VALUE: $STAGING_ENV
+
+deploy prod:
+  <<: *deploy
+  only:
+    - master
+  when: manual
+  variables:
+    ENV_VALUE: $PROD_ENV

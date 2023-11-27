@@ -1,0 +1,9 @@
+{
+   "type": "mysql",
+   "host": "localhost",
+   "port": 3306,
+   "username": "gautier",
+   "password": "gautier2023",
+   "database": "glosuite_backend",
+   "entities": ["src/**/**.entity{.ts, .js}"]
+}
