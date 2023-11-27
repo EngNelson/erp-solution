@@ -1,0 +1,1 @@
+export * from './add-delivery-point-input.dto';

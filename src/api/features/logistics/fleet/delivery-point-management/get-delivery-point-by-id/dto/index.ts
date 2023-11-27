@@ -1,0 +1,1 @@
+export * from './get-delivery-point-by-id-input.dto';

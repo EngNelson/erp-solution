@@ -1,0 +1,7 @@
+export enum ProductType {
+  SIMPLE = 'SIMPLE',
+  GROUPED = 'GROUPED',
+  BUNDLED = 'BUNDLED',
+  PACKED = 'PACKED',
+  PACKAGING = 'PACKAGING',
+}

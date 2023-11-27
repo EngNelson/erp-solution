@@ -1,0 +1,5 @@
+export enum OrderSensitivesData {
+  PRODUCT_PRICE = 'PRODUCT_PRICE',
+  DELIVERY_FEES = 'DELIVERY_FEES',
+  STORAGE_POINT = 'STORAGE_POINT',
+}

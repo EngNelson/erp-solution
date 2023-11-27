@@ -1,0 +1,6 @@
+export enum OutputStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  VALIDATED = 'VALIDATED',
+  CANCELED = 'CANCELED',
+}

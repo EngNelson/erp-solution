@@ -1,0 +1,7 @@
+export enum PaymentMethod {
+  CASH = 'CASH',
+  ORANGE_MONEY = 'ORANGE_MONEY',
+  MOBILE_MONEY = 'MOBILE_MONEY',
+  GLOTELHO_PAY = 'GLOTELHO_PAY',
+  CAISSE_DG = 'CAISSE_DG',
+}

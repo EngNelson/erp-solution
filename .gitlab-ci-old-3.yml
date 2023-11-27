@@ -1,0 +1,108 @@
+stages:
+  - build
+  - upload
+  - deploy
+
+variables:
+  STAGING_RESOURCE_BUCKET_NAME: glosuite-resources-staging
+  PROD_RESOURCE_BUCKET_NAME: glosuite-resources-prod
+
+  STAGING_ARTIFACT_NAME: glosuite-backend-staging
+  PROD_ARTIFACT_NAME: glosuite-backend-prod
+
+
+.build_template: &build
+  stage: build
+  image: node 
+  only:
+    - staging
+    - master
+  before_script:
+    - apt-get update -y
+    - apt-get install zip -y
+  script:
+    - rm -rf $ARTIFACT_NAME.zip
+    - zip -r $ARTIFACT_NAME.zip.zip .
+  artifacts:
+    paths:
+      - ./$ARTIFACT_NAME.zip
+
+build staging: 
+  <<: *build
+  only:
+    - staging
+  variables:
+    ARTIFACT_NAME: $STAGING_ARTIFACT_NAME
+
+build prod:
+  <<: *build
+  only:
+    - master
+  when: manual
+  variables:
+    ARTIFACT_NAME: $PROD_ARTIFACT_NAME
+
+
+.upload_template: &upload
+  stage: upload
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  script:
+    - aws s3 cp $ARTIFACT_NAME.zip s3://$RESOURCE_BUCKET_NAME/$ARTIFACT_NAME.zip
+
+upload staging: 
+  <<: *upload
+  only:
+    - staging
+  variables:
+    ARTIFACT_NAME: $STAGING_ARTIFACT_NAME
+    RESOURCE_BUCKET_NAME: $STAGING_RESOURCE_BUCKET_NAME
+
+upload prod:
+  <<: *upload
+  only:
+    - master
+  when: manual
+  variables:
+    ARTIFACT_NAME: $PROD_ARTIFACT_NAME
+    RESOURCE_BUCKET_NAME: $PROD_RESOURCE_BUCKET_NAME
+
+
+.deploy_template: &deploy
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  before_script:
+    - |
+      cat << EOF > deploy.sh
+        #!/bin/bash
+
+        npm install pm2 -g
+
+        rm -rf suite/glosuite.backend-staging/*
+        cd suite/glosuite.backend-staging
+
+        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+        export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+
+        aws s3 cp s3://$RESOURCE_BUCKET_NAME/$ARTIFACT_NAME.zip glosuite-backend.zip
+        unzip glosuite-backend.zip
+        rm -rf glosuite-backend.zip
+        ls -l -a 
+        mv .env.#ENV_NAME .env
+        npm install -f 
+        npm run build
+        pm2 stop all
+        pm2 delete all
+        pm2 start:prod npm --name "glosuite-backend" --start
+        pm2 status
+      EOF
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY}"
+    - chmod 400 "${SSH_PRIVATE_KEY}"
+    - ssh-add "${SSH_PRIVATE_KEY}"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - cp ${SSH_KNOWN_HOSTS} ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    

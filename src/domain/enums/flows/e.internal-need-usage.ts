@@ -1,0 +1,5 @@
+export enum InternalNeedUsage {
+  FOR_SERVICE = 'FOR_SERVICE',
+  FOR_DEPARTMENT = 'FOR_DEPARTMENT',
+  FOR_EMPLOYEE = 'FOR_EMPLOYEE',
+}

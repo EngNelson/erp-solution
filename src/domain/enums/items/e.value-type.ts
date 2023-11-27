@@ -1,0 +1,7 @@
+export enum ValueType {
+  COLOR = 'COLOR',
+  DROPDOWN = 'DROPDOWN',
+  MULTIPLE_SELECT = 'MULTIPLE_SELECT',
+  INPUT_FIELD = 'INPUT_FIELD',
+  YES_NO = 'YES_NO',
+}

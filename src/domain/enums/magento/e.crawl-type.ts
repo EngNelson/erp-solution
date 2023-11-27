@@ -1,0 +1,4 @@
+export enum CrawlType {
+  IMPORT_CRAWL = 'IMPORT_CRAWL',
+  UPDATED_CRAWL = 'UPDATED_CRAWL',
+}

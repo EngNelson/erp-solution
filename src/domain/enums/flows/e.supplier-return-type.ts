@@ -1,0 +1,4 @@
+export enum SupplierReturnType {
+  DEPOSITE_SALE = 'DEPOSITE_SALE',
+  MANUFACTURING_DEFECT = 'MANUFACTURING_DEFECT',
+}
