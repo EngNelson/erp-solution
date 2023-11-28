@@ -6,47 +6,34 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  AgentRoles,
-  FROM_EMAIL,
   isNullOrWhiteSpace,
   ISOLang,
   UserCon,
 } from '@glosuite/shared';
 import { Packages } from 'src/domain/entities/logistics';
-import { DeliveryRepository } from 'src/repositories/logistics';
-import { DeliveryStatus } from 'src/domain/enums/logistics';
-import { AddDeliveryInput } from './dto';
-import { OrderRepository } from 'src/repositories/orders';
-import { Order } from 'src/domain/entities/orders';
-import { AddInternalNeedService } from 'src/api/features/flows/internal-need/add-internal-need/add-internal-need.service';
-import { USERS_RESOURCE } from 'src/domain/constants';
-import { EmailInputModel } from 'src/domain/interfaces';
-import { SendingEmailService } from 'src/services/email';
-import { HttpService } from '@nestjs/axios';
+import { EditPackagesInput } from './dto/edit-input.dto';
+import { AddPackagesInput } from '../add-packages/dto';
+import { GetPackageByIdInput } from './dto/get-package-by-id-input.dto';
 
 
 type ValidationResult = {
-  delivery: AddDeliveryInput;
+  package: GetPackageByIdInput;
   lang: ISOLang;
   user: UserCon;
 };
 
 @Injectable()
-export class AddDeliveryService {
+export class GetPackageByIdService {
   constructor(
-    @InjectRepository(Delivery)
-    private readonly _deliveryRepository: DeliveryRepository,
-    @InjectRepository(Order)
-    private readonly _orderRepository: OrderRepository,
-    private readonly _sendingEmailService: SendingEmailService,
-    private readonly _httpService: HttpService,
+    @InjectRepository(Packages)
+    private readonly _packagesRepository: Repository<PackagesRepository>,
   ) { }
 
-  async addDelivery(
-    input: AddDeliveryInput,
+  async getPackageById(
+    input: GetPackageByIdInput,
     user: UserCon,
     accessToken: string,
-  ): Promise<AddDeliveryInput> {
+  ): Promise<GetPackageByIdInput> {
 
     const validationResult = await this._tryValidation(input, user);
 
@@ -70,65 +57,12 @@ export class AddDeliveryService {
   private async _tryExecution(
     accessToken: string,
     result: ValidationResult,
-  ): Promise<AddDeliveryInput> {
+  ): Promise<AddPackagesInput> {
 
 
     try {
-      // Set Delivery Status
-      result.delivery.status = DeliveryStatus.PENDING;
-
-      // Send Notification To Delivery Agent
-      const sendEmailTo: string[] = [];
-      const path = `${process.env.AUTH_API_PATH}/${USERS_RESOURCE}`;
-      await this._httpService.axiosRef
-        .get(path + `?roles=${AgentRoles.WAREHOUSE_MANAGER}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Accept-Encoding': 'gzip,deflate,compress',
-          },
-        })
-        .then((response) => {
-          console.log(
-            `${response.config.method} on ${response.config.url}. Result=${response.statusText}`,
-            'Data ',
-            response.data,
-          );
-
-          response.data.items.map((item) => {
-            if (item) {
-              sendEmailTo.push(item.email);
-            }
-          });
-        })
-        .catch((error) => {
-          throw new HttpException(
-            error.message,
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-        });
-
-      sendEmailTo.unshift(result.user.email);
-
-      if (sendEmailTo.length > 0) {
-        console.log(`Send mail to ${sendEmailTo}`);
-
-        const emailInput: EmailInputModel = {
-          to: sendEmailTo,
-          from: FROM_EMAIL,
-          subject: 'Material Requisition Form',
-        };
-
-        try {
-          await this._sendingEmailService.sendEmail(emailInput);
-        } catch (error) {
-          console.log(
-            `Error sending email: ${error} - ${AddInternalNeedService.name} - ${this._tryExecution.name}`,
-          );
-        }
-      }
-
-      // Save Delivery Data To DB And Send Response To Frontend
-      return await this._deliveryRepository.save(result.delivery);
+      
+      return await this._packagesRepository.findOne(result.package.packageId);
 
     } catch (error) {
       throw new HttpException(error?.message, HttpStatus.BAD_REQUEST);
@@ -136,7 +70,7 @@ export class AddDeliveryService {
   }
 
   private async _tryValidation(
-    input: AddDeliveryInput,
+    input: GetPackageByIdInput,
     user: UserCon,
   ): Promise<ValidationResult> {
     try {
@@ -148,31 +82,21 @@ export class AddDeliveryService {
 
       // Check For Null or White Space Values
       if (
-        isNullOrWhiteSpace(input.orderId)
+        isNullOrWhiteSpace(input.packageId)
       ) {
         throw new BadRequestException(
-          `OrderId is required`,
+          `PackageId is required`,
         );
       }
 
-      if (
-        isNullOrWhiteSpace(input.transportation)
-      ) {
-        throw new BadRequestException(
-          `transportationMeans is required`,
-        );
+      // Check If Package Exists
+      const packageData = await this._packagesRepository.findOne(input.packageId);
+      if (!packageData) {
+        throw new HttpException(`Package with id ${input.packageId} not found`, HttpStatus.NOT_FOUND);
       }
 
-      // Check If OrderId Exists
-      const orderData = await this._orderRepository.findOne(input.orderId);
-      if (!orderData) {
-        throw new HttpException(`Order with id ${input.orderId} not found`, HttpStatus.NOT_FOUND);
-      }
-
-      return { delivery: input, user, lang };
+      return { package: input, user, lang };
     } catch (error) {
-      console.log('Here is todays message ', error.message);
-
       throw new BadRequestException("Validation failed");
     }
 
