@@ -55,7 +55,7 @@ export class EditPackagesController {
     status: 201,
     type: ,
   })
-  async addOrder(
+  async editePackages(
     @Body() body: AddPackagesInput,
     @Query() params: ISOLandDto,
     @UserConnected() user: UserCon,
