@@ -49,25 +49,11 @@ export class AddPackagesService {
     user: UserCon, accessToken: string ) {
 
     try {
-      // const packages = await this._packagesRepository.findOne({ where: { id: input.packagesId } });
-      // if (!Packages) {
-      //   throw new HttpException(`Packages with id ${input.packagesId} not found`, HttpStatus.NOT_FOUND);
-      // }
-
-      // const updatedPackages = {
-      //   ...input,
-      //   ...packages
-      // };
-
-      // const updatedResult = await this._packagesRepository.update(input.packagesId, updatedPackages);
-
-
-      await this._packagesRepository.save(input);
-
-      
+           
+      const response = await this._packagesRepository.save(input);
 
     } catch (error) {
-      throw new HttpException("Update failed", HttpStatus.EXPECTATION_FAILED);
+      throw new HttpException("Adding new Package failed", HttpStatus.EXPECTATION_FAILED);
     }
 
   }
