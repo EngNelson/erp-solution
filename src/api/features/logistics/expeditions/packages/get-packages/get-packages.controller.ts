@@ -22,13 +22,14 @@ import {
 } from '@glosuite/shared';
 import { JwtAuthGuard, PermissionsGuard, RolesGuard } from 'src/api/guards';
 
-import { AddPackagesService } from './add-packages.service';
-import {AddPackagesInput} from './dto'; 
+import { GetPackagesService } from './get-packages.service';
+import { GetPackagesInput } from './dto/get-packages-input.dto';
+import { GetPackagesOutput } from './dto/get-packages-output.dto';
 
 @ApiTags('packages')
 @Controller('packages')
-export class AddPackagesController {
-  constructor(private readonly _addPackagesService: AddPackagesService) {}
+export class GetPackagesController {
+  constructor(private readonly _getPackagesService: GetPackagesService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
   @Roles(
@@ -55,12 +56,12 @@ export class AddPackagesController {
     status: 201,
     type: ,
   })
-  async addOrder(
-    @Body() body: AddPackagesInput,
+  async GetOrder(
+    @Body() body: GetPackagesInput,
     @Query() params: ISOLandDto,
     @UserConnected() user: UserCon,
     @Req() request: any,
-  ): Promise<> {
+  ): Promise<GetPackagesOutput> {
     if (!user) {
       throw new NotFoundException(`User not found`);
     }
@@ -72,6 +73,6 @@ export class AddPackagesController {
       : ISOLang.FR;
 
     const accessToken = request.headers.authorization.replace('Bearer ', '');
-    return await this._addPackagesService.addPackages(body, user, accessToken);
+    return await this._getPackagesService.getPackages(body, user, accessToken);
   }
 }
