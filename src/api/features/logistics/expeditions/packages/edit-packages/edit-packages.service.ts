@@ -6,23 +6,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  AgentRoles,
-  FROM_EMAIL,
   isNullOrWhiteSpace,
   ISOLang,
   UserCon,
 } from '@glosuite/shared';
-import { Delivery } from 'src/domain/entities/logistics';
-import { DeliveryRepository } from 'src/repositories/logistics';
-import { DeliveryStatus } from 'src/domain/enums/logistics';
-import { AddDeliveryInput } from './dto';
-import { OrderRepository } from 'src/repositories/orders';
-import { Order } from 'src/domain/entities/orders';
-import { AddInternalNeedService } from 'src/api/features/flows/internal-need/add-internal-need/add-internal-need.service';
-import { USERS_RESOURCE } from 'src/domain/constants';
-import { EmailInputModel } from 'src/domain/interfaces';
-import { SendingEmailService } from 'src/services/email';
-import { HttpService } from '@nestjs/axios';
+import { Packages } from 'src/domain/entities/logistics';
 import { EditPackagesInput } from './dto/edit-input.dto';
 import { AddPackagesInput } from '../add-packages/dto';
 
@@ -34,7 +22,7 @@ type ValidationResult = {
 };
 
 @Injectable()
-export class AddDeliveryService {
+export class EditPackagesService {
   constructor(
     @InjectRepository(Packages)
     private readonly _packagesRepository: Repository<PackagesRepository>,
@@ -68,7 +56,7 @@ export class AddDeliveryService {
   private async _tryExecution(
     accessToken: string,
     result: ValidationResult,
-  ): Promise<AddDeliveryInput> {
+  ): Promise<AddPackagesInput> {
 
 
     try {
