@@ -6,10 +6,7 @@ import {
   IsOptional,
 } from 'class-validator-multi-lang';
 
-import { ProductItem } from 'src/domain/entities/items';
-import { Expedition } from 'src/domain/entities/logistics';
 import { PackageStatus } from 'src/domain/enums/logistics';
-
 
 
 export class AddPackagesInput{

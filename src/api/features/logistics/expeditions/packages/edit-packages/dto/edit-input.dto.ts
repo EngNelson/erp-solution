@@ -11,54 +11,30 @@ import { PackageStatus } from 'src/domain/enums/logistics';
 
 
 
-export class AddPackagesInput{
-  @IsNotEmpty()
-  @IsOptional()
-  reference: string;
-  
-  @IsNotEmpty()
-  @IsOptional()
-  name: string;
+export class EditPackagesInput{
 
-  @IsNotEmpty()
+  @IsOptional()
+  packageId?: string;
+  
+  @IsOptional()
+  name?: string;
+
   @IsOptional()
   description?: string;
 
    
- 
-  @IsNotEmpty()
+  @IsEnum({
+    type: 'enum'
+  })
   @IsOptional()
-  status: PackageStatus;
-  
-  
-  @IsNotEmpty()
-  @IsOptional()
- storagePointId?: string;
-
- @IsNotEmpty()
- @IsOptional()
-  storagePoint?: StoragePoint;
-
-  @IsNotEmpty()
-  @IsOptional()
-  receptionId?: string;
-
-  @IsNotEmpty()
-  @IsOptional()
-  reception: Reception;
-
-  @IsNotEmpty()
-  @IsOptional()
-  productItems: ProductItem[];
+  status?: PackageStatus;
   
 
-  @IsNotEmpty()
   @IsOptional()
-  expeditionId: Expedition;
-
-  @IsNotEmpty()
-  @IsOptional()
-  expedition: Expedition;
+  @IsEnum(ISOLang)
+  @IsISOLang()
+  @ApiPropertyOptional({ type: 'enum', enum: ISOLang, default: ISOLang.FR })
+  lang?: ISOLang;
 
 }
 

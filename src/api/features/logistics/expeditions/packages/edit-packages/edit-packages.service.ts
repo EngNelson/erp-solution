@@ -6,13 +6,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  AgentRoles,
-  FROM_EMAIL,
   isNullOrWhiteSpace,
   ISOLang,
   UserCon,
 } from '@glosuite/shared';
-import { Packages } from "src/domain/entities/logistics";
+import { Packages } from 'src/domain/entities/logistics';
 import { OrderRepository } from 'src/repositories/orders';
 import { Order } from 'src/domain/entities/orders';
 import { AddInternalNeedService } from 'src/api/features/flows/internal-need/add-internal-need/add-internal-need.service';
@@ -23,7 +21,7 @@ import { HttpService } from '@nestjs/axios';
 
 
 type ValidationResult = {
-  packages: editPackages;
+  package: EditPackagesInput;
   lang: ISOLang;
   user: UserCon;
 };
@@ -32,18 +30,14 @@ type ValidationResult = {
 export class EditPackagesService {
   constructor(
     @InjectRepository(Packages)
-    private readonly _packagesRepository: PackagesRepository,
-    @InjectRepository(Order)
-    private readonly _orderRepository: OrderRepository,
-    private readonly _sendingEmailService: SendingEmailService,
-    private readonly _httpService: HttpService,
+    private readonly _packagesRepository: Repository<PackagesRepository>,
   ) { }
 
   async editPackages(
-    input: AddPackagesInput ,
+    input: EditPackagesInput,
     user: UserCon,
     accessToken: string,
-  ): Promise<AddPackagesInput> {
+  ): Promise<EditPackagesInput> {
 
     const validationResult = await this._tryValidation(input, user);
 
@@ -71,61 +65,8 @@ export class EditPackagesService {
 
 
     try {
-      // Set Packages Status
-      result.packages.status = PackagesStatus.PENDING;
-
-      // Send Notification To Delivery Agent
-      const sendEmailTo: string[] = [];
-      const path = `${process.env.AUTH_API_PATH}/${USERS_RESOURCE}`;
-      await this._httpService.axiosRef
-        .get(path + `?roles=${AgentRoles.WAREHOUSE_MANAGER}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Accept-Encoding': 'gzip,deflate,compress',
-          },
-        })
-        .then((response) => {
-          console.log(
-            `${response.config.method} on ${response.config.url}. Result=${response.statusText}`,
-            'Data ',
-            response.data,
-          );
-
-          response.data.items.map((item) => {
-            if (item) {
-              sendEmailTo.push(item.email);
-            }
-          });
-        })
-        .catch((error) => {
-          throw new HttpException(
-            error.message,
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-        });
-
-      sendEmailTo.unshift(result.user.email);
-
-      if (sendEmailTo.length > 0) {
-        console.log(`Send mail to ${sendEmailTo}`);
-
-        const emailInput: EmailInputModel = {
-          to: sendEmailTo,
-          from: FROM_EMAIL,
-          subject: 'Material Requisition Form',
-        };
-
-        try {
-          await this._sendingEmailService.sendEmail(emailInput);
-        } catch (error) {
-          console.log(
-            `Error sending email: ${error} - ${AddInternalNeedService.name} - ${this._tryExecution.name}`,
-          );
-        }
-      }
-
-      // Save Delivery Data To DB And Send Response To Frontend
-      return await this._packagesRepository.save(result.packages);
+      // Update Package Data in DB And Send Response To Frontend
+      return await this._packagesRepository.update([result.package.packageId],result.package);
 
     } catch (error) {
       throw new HttpException(error?.message, HttpStatus.BAD_REQUEST);
@@ -133,7 +74,7 @@ export class EditPackagesService {
   }
 
   private async _tryValidation(
-    input: AddPackagesInput,
+    input: EditPackagesInput,
     user: UserCon,
   ): Promise<ValidationResult> {
     try {
@@ -145,31 +86,21 @@ export class EditPackagesService {
 
       // Check For Null or White Space Values
       if (
-        isNullOrWhiteSpace(input.orderId)
+        isNullOrWhiteSpace(input.packageId)
       ) {
         throw new BadRequestException(
-          `OrderId is required`,
-        );
-      }
-
-      if (
-        isNullOrWhiteSpace(input.transportation)
-      ) {
-        throw new BadRequestException(
-          `transportationMeans is required`,
+          `PackageId is required`,
         );
       }
 
       // Check If OrderId Exists
-      const orderData = await this._orderRepository.findOne(input.orderId);
-      if (!orderData) {
-        throw new HttpException(`Order with id ${input.orderId} not found`, HttpStatus.NOT_FOUND);
+      const packageData = await this._packagesRepository.findOne(input.packageId);
+      if (!packageData) {
+        throw new HttpException(`Order with id ${input.packageId} not found`, HttpStatus.NOT_FOUND);
       }
 
-      return { packages: input, user, lang };
+      return { package: input, user, lang };
     } catch (error) {
-      console.log('Here is todays message ', error.message);
-
       throw new BadRequestException("Validation failed");
     }
 

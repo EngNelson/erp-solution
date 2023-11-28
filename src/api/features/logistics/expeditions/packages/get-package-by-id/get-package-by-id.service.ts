@@ -12,7 +12,7 @@ import {
   ISOLang,
   UserCon,
 } from '@glosuite/shared';
-import { Delivery } from 'src/domain/entities/logistics';
+import { Packages } from 'src/domain/entities/logistics';
 import { DeliveryRepository } from 'src/repositories/logistics';
 import { DeliveryStatus } from 'src/domain/enums/logistics';
 import { AddDeliveryInput } from './dto';
