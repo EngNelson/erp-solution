@@ -27,7 +27,7 @@ export class GetPackageByIdService {
   constructor(
     @InjectRepository(Packages)
     private readonly _packagesRepository: Repository<PackagesRepository>,
-  ) { }
+  ) {}
 
   async getPackageById(
     input: GetPackageByIdInput,

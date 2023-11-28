@@ -70,7 +70,7 @@ import {
     private async _tryExecution(
       accessToken: string,
       result: ValidationResult,
-    ): Promise<AddDeliveryInput> {
+    ): Promise<AddExpeditionInput> {
   
   
       try {

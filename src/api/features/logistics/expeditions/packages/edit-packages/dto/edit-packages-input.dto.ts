@@ -28,9 +28,9 @@ export class EditPackagesInput{
 
   @IsOptional()
   @IsEnum(ISOLang)
-  @IsISOLang()
-  @ApiPropertyOptional({ type: 'enum', enum: ISOLang, default: ISOLang.FR })
-  lang?: ISOLang;
+  // @IsISOLang()
+  // @ApiPropertyOptional({ type: 'enum', enum: ISOLang, default: ISOLang.FR })
+  // lang?: ISOLang;
 
 }
 

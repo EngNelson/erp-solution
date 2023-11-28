@@ -1,38 +1,34 @@
 import { ISOLang, IsISOLang } from '@glosuite/shared';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
   IsNotEmpty,
   IsOptional,
 } from 'class-validator-multi-lang';
-import { DeliveryStatus, TransportationMeans } from 'src/domain/enums/logistics';
+import { PackageStatus } from 'src/domain/enums/logistics';
 
-
-export class AddExpeditionInput{
+export class AddPackagesInput{
+ 
+  @IsNotEmpty()
   @IsOptional()
-  @ApiPropertyOptional()
-  orderId: string;
+  name: string;
 
   @IsNotEmpty()
-  @IsEnum(DeliveryStatus)
-  @ApiProperty({
-    type: 'enum',
-    enum: DeliveryStatus,
-  })
-  status: DeliveryStatus;
+  @IsOptional()
+  description?: string;
 
+  @IsEnum({
+    type: 'enum'
+  })
   @IsNotEmpty()
-  @IsEnum(TransportationMeans)
-  @ApiProperty({
-    type: 'enum',
-    enum: TransportationMeans,
-  })
-  transportation: TransportationMeans;
-
+  @IsOptional()
+  status: PackageStatus;
+  
   @IsOptional()
   @IsEnum(ISOLang)
   @IsISOLang()
   @ApiPropertyOptional({ type: 'enum', enum: ISOLang, default: ISOLang.FR })
   lang?: ISOLang;
-
+  
 }
+

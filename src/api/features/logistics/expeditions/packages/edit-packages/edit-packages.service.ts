@@ -26,7 +26,7 @@ export class EditPackagesService {
   constructor(
     @InjectRepository(Packages)
     private readonly _packagesRepository: Repository<PackagesRepository>,
-  ) { }
+  ) {}
 
   async editPackages(
     input: EditPackagesInput,
