@@ -12,10 +12,7 @@ import {
   ISOLang,
   UserCon,
 } from '@glosuite/shared';
-import { Delivery } from 'src/domain/entities/logistics';
-import { DeliveryRepository } from 'src/repositories/logistics';
-import { DeliveryStatus } from 'src/domain/enums/logistics';
-import { AddDeliveryInput } from './dto';
+import { Packages } from 'src/domain/entities/logistics';
 import { OrderRepository } from 'src/repositories/orders';
 import { Order } from 'src/domain/entities/orders';
 import { AddInternalNeedService } from 'src/api/features/flows/internal-need/add-internal-need/add-internal-need.service';
@@ -26,27 +23,27 @@ import { HttpService } from '@nestjs/axios';
 
 
 type ValidationResult = {
-  delivery: AddDeliveryInput;
+  packages: editPackages;
   lang: ISOLang;
   user: UserCon;
 };
 
 @Injectable()
-export class AddDeliveryService {
+export class EditPackagesService {
   constructor(
-    @InjectRepository(Delivery)
-    private readonly _deliveryRepository: DeliveryRepository,
+    @InjectRepository(Packages)
+    private readonly _packagesRepository: PackagesRepository,
     @InjectRepository(Order)
     private readonly _orderRepository: OrderRepository,
     private readonly _sendingEmailService: SendingEmailService,
     private readonly _httpService: HttpService,
   ) { }
 
-  async addDelivery(
-    input: AddDeliveryInput,
+  async editPackages(
+    input: AddPackagesInput ,
     user: UserCon,
     accessToken: string,
-  ): Promise<AddDeliveryInput> {
+  ): Promise<AddPackagesInput> {
 
     const validationResult = await this._tryValidation(input, user);
 
@@ -70,12 +67,12 @@ export class AddDeliveryService {
   private async _tryExecution(
     accessToken: string,
     result: ValidationResult,
-  ): Promise<AddDeliveryInput> {
+  ): Promise<AddPackagesInput> {
 
 
     try {
-      // Set Delivery Status
-      result.delivery.status = DeliveryStatus.PENDING;
+      // Set Packages Status
+      result.packages.status = PackagesStatus.PENDING;
 
       // Send Notification To Delivery Agent
       const sendEmailTo: string[] = [];
@@ -128,7 +125,7 @@ export class AddDeliveryService {
       }
 
       // Save Delivery Data To DB And Send Response To Frontend
-      return await this._deliveryRepository.save(result.delivery);
+      return await this._packagesRepository.save(result.packages);
 
     } catch (error) {
       throw new HttpException(error?.message, HttpStatus.BAD_REQUEST);
@@ -136,7 +133,7 @@ export class AddDeliveryService {
   }
 
   private async _tryValidation(
-    input: AddDeliveryInput,
+    input: AddPackagesInput,
     user: UserCon,
   ): Promise<ValidationResult> {
     try {
@@ -169,7 +166,7 @@ export class AddDeliveryService {
         throw new HttpException(`Order with id ${input.orderId} not found`, HttpStatus.NOT_FOUND);
       }
 
-      return { delivery: input, user, lang };
+      return { packages: input, user, lang };
     } catch (error) {
       console.log('Here is todays message ', error.message);
 
