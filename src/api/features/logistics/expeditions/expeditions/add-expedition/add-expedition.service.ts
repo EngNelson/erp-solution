@@ -11,7 +11,6 @@ import {
 } from '@glosuite/shared';
 import {  Expedition, Packages } from 'src/domain/entities/logistics';
 import { ExpeditionRepository, PackagesRepository } from 'src/repositories/logistics';
-import { GetDeliveriesOptionsDto } from 'src/domain/dto/delivery/get-deliveries-options.dto';
 
 import { AddExpeditionInput } from './dto'
 import { Repository } from 'typeorm';
@@ -22,7 +21,7 @@ import { ProductItemRepository } from 'src/repositories/items';
 
 type ValidationResult = {
   pagination: PaginationDto;
-  option?: GetDeliveriesOptionsDto;
+  option?: any;
   lang?: ISOLang;
   user: UserCon;
 };
