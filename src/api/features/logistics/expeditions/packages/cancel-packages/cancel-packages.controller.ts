@@ -18,17 +18,17 @@ import {
   Ressource,
   Roles,
   UserCon,
-  UserConnected,
 } from '@glosuite/shared';
 import { JwtAuthGuard, PermissionsGuard, RolesGuard } from 'src/api/guards';
 
-import { cancelPackagesService } from './cancel-packages.service';
+import { CancelPackageService, cancelPackagesService } from './cancel-packages.service';
 import {AddPackagesInput} from './dto'; 
+import { CancelPackagesInput } from './dto/cancel-input.dto';
 
 @ApiTags('packages')
 @Controller('packages')
 export class CancelPackagesController {
-  constructor(private readonly _cancelPackagesService: CancelPackagesService) {}
+  constructor(private readonly _cancelPackagesService: CancelPackageService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
   @Roles(
@@ -53,14 +53,14 @@ export class CancelPackagesController {
   @Post()
   @ApiResponse({
     status: 201,
-    type: ,
+    type: CancelPackagesInput,
   })
   async addOrder(
     @Body() body: AddPackagesInput,
     @Query() params: ISOLandDto,
     @UserConnected() user: UserCon,
     @Req() request: any,
-  ): Promise<> {
+  ): Promise<any> {
     if (!user) {
       throw new NotFoundException(`User not found`);
     }
