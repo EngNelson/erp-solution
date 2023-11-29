@@ -27,7 +27,7 @@ import {
   
   @ApiTags('expeditions')
   @Controller('expeditions')
-  export class AddExpeditionController {
+  export class GetExpeditionController {
     constructor(private readonly _addExpeditionService: AddExpeditionService) {}
   
     @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
@@ -55,8 +55,8 @@ import {
       status: 201,
       type: ,
     })
-    async addOrder(
-      @Body() body: AddExpeditionInput,
+    async getExpedition(
+      @Body() body: GetExpeditionByIdInput,
       @Query() params: ISOLandDto,
       @UserConnected() user: UserCon,
       @Req() request: any,
@@ -72,7 +72,7 @@ import {
         : ISOLang.FR;
   
       const accessToken = request.headers.authorization.replace('Bearer ', '');
-      return await this._addExpeditionService.addExpedition(body, user, accessToken);
+      return await this._getExpeditionService.getExpedition(body, user, accessToken);
     }
   }
   

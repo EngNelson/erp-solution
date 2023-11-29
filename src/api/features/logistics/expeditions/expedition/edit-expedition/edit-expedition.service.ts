@@ -12,7 +12,7 @@ import {
 } from '@glosuite/shared';
 import { Expedition } from 'src/domain/entities/logistics';
 import { EditExpeditionInput } from './dto/edit-input.dto';
-import { AddPackagesInput } from '../add-packages/dto';
+
 
 
 type ValidationResult = {
@@ -24,11 +24,11 @@ type ValidationResult = {
 @Injectable()
 export class EditExpeditionService {
   constructor(
-    @InjectRepository(Packages)
-    private readonly _packagesRepository: Repository<PackagesRepository>,
+    @InjectRepository()
+    private readonly _expeditionRepository: Repository<ExpeditionRepository>,
   ) {}
 
-  async editPackages(
+  async editExpedition(
     input: EditExpeditionInput,
     user: UserCon,
     accessToken: string,
@@ -56,12 +56,12 @@ export class EditExpeditionService {
   private async _tryExecution(
     accessToken: string,
     result: ValidationResult,
-  ): Promise<AddPackagesInput> {
+  ): Promise<AddExpeditionInput> {
 
 
     try {
       // Update Package Data in DB And Send Response To Frontend
-      return await this._packagesRepository.update([result.package.packageId],result.package);
+      return await this._expeditionRepository.update([result.expedition.expeditionId],result.expedition);
 
     } catch (error) {
       throw new HttpException(error?.message, HttpStatus.BAD_REQUEST);
@@ -81,7 +81,7 @@ export class EditExpeditionService {
 
       // Check For Null or White Space Values
       if (
-        isNullOrWhiteSpace(input.packageId)
+        isNullOrWhiteSpace(input.expeditionId)
       ) {
         throw new BadRequestException(
           `PackageId is required`,
@@ -89,7 +89,7 @@ export class EditExpeditionService {
       }
 
       // Check If OrderId Exists
-      const packageData = await this._packagesRepository.findOne(input.packageId);
+      const packageData = await this._expeditionRepository.findOne(input.expeditionId);
       if (!packageData) {
         throw new HttpException(`Order with id ${input.packageId} not found`, HttpStatus.NOT_FOUND);
       }

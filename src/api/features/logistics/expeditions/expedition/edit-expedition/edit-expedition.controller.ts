@@ -55,8 +55,8 @@ export class EditExpeditionController {
     status: 201,
     type: ,
   })
-  async editePackages(
-    @Body() body: AddExpeditionInput,
+  async editExpedition(
+    @Body() body: EditExpeditionInput,
     @Query() params: ISOLandDto,
     @UserConnected() user: UserCon,
     @Req() request: any,

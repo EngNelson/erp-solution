@@ -5,7 +5,7 @@ import {
   
   
   
-  export class GetPackageByIdInput{
+  export class GetExpeditionInput{
     @IsOptional()
     packageId?: string;
     

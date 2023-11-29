@@ -6,8 +6,7 @@ import {
     UserCon,
   } from '@glosuite/shared';
   import { Expedition } from 'src/domain/entities/logistics';
-  import { OrderRepository } from 'src/repositories/orders';
-  import { Order } from 'src/domain/entities/orders';
+  import { ExpeditionRepository } from 'src/repositories/orders';
   import { GetExpeditionInput } from './dto/get-packages-input.dto';
   
   
@@ -15,19 +14,18 @@ import {
   @Injectable()
   export class GetExpeditionService {
     constructor(
-      @InjectRepository(Packages)
-      private readonly _packagesRepository: PackagesRepository,
-      @InjectRepository(Order)
-      private readonly _orderRepository: OrderRepository,
+      @InjectRepository(Expedition)
+      private readonly _expeditionRepository: ExpeditionRepository,
+     
     ) { }
   
-    async getPackages(
+    async getExpedition(
       input: GetExpeditionInput,
       user: UserCon,
       accessToken: string,
     ): Promise<any> {
   
-     return this._packagesRepository.find();
+     return this._expeditionRepository.find();
     }
   
   }
