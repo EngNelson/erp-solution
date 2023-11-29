@@ -1,0 +1,1 @@
+export * from './storage-point-input.dto';
