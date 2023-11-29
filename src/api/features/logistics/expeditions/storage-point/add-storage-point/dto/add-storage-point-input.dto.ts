@@ -8,7 +8,7 @@ import {
 import { Address } from 'src/domain/entities/shared';
 
 
-export class GetStoragePointInput{
+export class AddStoragePointInput{
  
   @IsNotEmpty()
   @ApiProperty()
