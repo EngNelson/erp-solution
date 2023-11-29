@@ -7,7 +7,7 @@ import {
 } from 'class-validator-multi-lang';
 import { PackageStatus } from 'src/domain/enums/logistics';
 
-export class AddPackagesInput{
+export class AddExpeditionInput{
  
   @IsNotEmpty()
   @IsOptional()

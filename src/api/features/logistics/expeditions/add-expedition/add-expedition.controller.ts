@@ -22,8 +22,8 @@ import {
 } from '@glosuite/shared';
 import { JwtAuthGuard, PermissionsGuard, RolesGuard } from 'src/api/guards';
 
-import { AddPackagesService } from './add-packages.service';
-import {AddPackagesInput} from './dto'; 
+import { AddExpeditionService } from './add-packages.service';
+import {AddExpeditionInput} from './dto'; 
 
 @ApiTags('expeditions')
 @Controller('expeditions')
