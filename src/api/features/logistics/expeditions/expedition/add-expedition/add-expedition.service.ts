@@ -28,8 +28,7 @@ export class AddExpeditionService {
   constructor(
     @InjectRepository(Expedition)
     private readonly _expeditionRepository: Repository<ExpeditionRepository>,
-   
-
+  ){}
     
 
   async addExpedition(input: AddExpeditionInput,
