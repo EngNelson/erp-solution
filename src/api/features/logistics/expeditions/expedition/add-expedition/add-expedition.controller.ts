@@ -22,7 +22,7 @@ import {
 } from '@glosuite/shared';
 import { JwtAuthGuard, PermissionsGuard, RolesGuard } from 'src/api/guards';
 
-import { AddExpeditionService } from './add-packages.service';
+import { AddExpeditionService } from './add-expedition.service';
 import {AddExpeditionInput} from './dto'; 
 
 @ApiTags('expeditions')

@@ -72,7 +72,7 @@ import {
         : ISOLang.FR;
   
       const accessToken = request.headers.authorization.replace('Bearer ', '');
-      return await this._getExpeditionService.getExpedition(body, user, accessToken);
+      return await this._getExpeditionService.GetExpedition(body, user, accessToken);
     }
   }
   
