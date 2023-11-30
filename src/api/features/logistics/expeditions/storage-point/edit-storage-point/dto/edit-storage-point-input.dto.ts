@@ -9,10 +9,14 @@ import { Address } from 'src/domain/entities/shared';
 
 
 export class EditStoragePointInput{
+
+  @IsNotEmpty()
+  @ApiProperty()
+  storagePointId: string;
  
   @IsNotEmpty()
   @ApiProperty()
-  deliveryPointAddress: Address;
+  storagePointAddress: Address;
 
   @IsOptional()
   @IsEnum(ISOLang)

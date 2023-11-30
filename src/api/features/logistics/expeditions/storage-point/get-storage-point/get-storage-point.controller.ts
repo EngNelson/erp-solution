@@ -2,7 +2,6 @@ import {
     Body,
     Controller,
     NotFoundException,
-    Post,
     Query,
     Req,
     UseGuards,
@@ -21,17 +20,13 @@ import {
     UserConnected,
   } from '@glosuite/shared';
   import { JwtAuthGuard, PermissionsGuard, RolesGuard } from 'src/api/guards';
-  import { GetStoragePointInput } from './dto';
-  import { GetStoragePointService } from './cancel-storage-point.service';
-  
-  
-  
-  
+  import { GetStoragePointsInput } from './dto';
+import { GetStoragePointsService } from './get-storage-point.service';
   
   @ApiTags('storage-points')
   @Controller('storage-points')
-  export class GetStoragePointController {
-    constructor(private readonly _cancelStoragePointService: CancelStoragePointService) { }
+  export class GetStoragePointsController {
+    constructor(private readonly _getStoragePointService: GetStoragePointsService) { }
   
     @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
     @Roles(
@@ -53,17 +48,17 @@ import {
     )
     @Ressource(ApiRessources.STORAGE_POINT)
     @RequirePrivileges(Abilities.MANAGE, Abilities.CREATE)
-    @Post()
+    @Get()
     @ApiResponse({
       status: 201,
-      type: GetStoragePointInput,
+      type: GetStoragePointsInput,
     })
-    async editStoragePoint(
-      @Body() body: GetStoragePointInput,
+    async getStoragePoints(
+      @Body() body: GetStoragePointsInput,
       @Query() params: ISOLandDto,
       @UserConnected() user: UserCon,
       @Req() request: any,
-    ): Promise<GetStoragePointInput> {
+    ): Promise<any> {
       if (!user) {
         throw new NotFoundException(`User not Found`);
       }
@@ -75,7 +70,7 @@ import {
           : ISOLang.FR;
   
       const accessToken = request.headers.authorization.replace('Bearer', '');
-      return await this._getStoragePointService.GetStoragePoint(body, user, accessToken);
+      return await this._getStoragePointService.getStoragePoints(body, user, accessToken);
     }
   
   }

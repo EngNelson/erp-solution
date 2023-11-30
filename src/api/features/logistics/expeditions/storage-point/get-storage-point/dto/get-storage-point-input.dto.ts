@@ -1,18 +1,15 @@
 import { ISOLang, IsISOLang } from '@glosuite/shared';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
-  IsNotEmpty,
   IsOptional,
 } from 'class-validator-multi-lang';
-import { Address } from 'src/domain/entities/shared';
 
 
-export class GetStoragePointInput{
+export class GetStoragePointsInput{
  
-  @IsNotEmpty()
-  @ApiProperty()
-  deliveryPointAddress: Address;
+  pagination: PaginationDto;
+  options?: any;
 
   @IsOptional()
   @IsEnum(ISOLang)
